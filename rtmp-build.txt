@@ -1,0 +1,155 @@
+
+##########################################rtmp 3559##########################################
+
+#zlib
+(base) hisilicon@hisilicon-desktop:~/Desktop/nfs_v300/rtmp3559/rtmp_src/zlib-1.2.11$ CC=aarch64-himix100-linux-gcc bash ./configure --prefix=/home/hisilicon/Desktop/nfs_v300/rtmp3559/rtmp_install
+1、 CC=aarch64-himix100-linux-gcc bash ./configure --prefix=/home/hisilicon/Desktop/nfs_v300/rtmp3559/rtmp_install
+(base) hisilicon@hisilicon-desktop:~/Desktop/nfs_v300/rtmp3559/rtmp_src/zlib-1.2.11$ make
+2、make && make install
+
+(base) hisilicon@hisilicon-desktop:~/Desktop/nfs_v300/rtmp3559/rtmp_install$ tree
+.
+├── include
+│   ├── zconf.h
+│   └── zlib.h
+├── lib
+│   ├── libz.a
+│   ├── libz.so -> libz.so.1.2.11
+│   ├── libz.so.1 -> libz.so.1.2.11
+│   ├── libz.so.1.2.11
+│   └── pkgconfig
+│       └── zlib.pc
+└── share
+    └── man
+        └── man3
+            └── zlib.3
+
+
+#openssl
+(base) hisilicon@hisilicon-desktop:~/Desktop/nfs_v300/rtmp3559/rtmp_src/openssl-OpenSSL_1_0_1u$ CC=aarch64-himix100-linux-gcc bash ./config no-asm shared --prefix=/home/hisilicon/Desktop/nfs_v300/rtmp3559/rtmp_install
+1、CC=aarch64-himix100-linux-gcc bash ./config no-asm shared --prefix=/home/hisilicon/Desktop/nfs_v300/rtmp3559/rtmp_install
+2、gedit Makefile 去掉-m64, 两处
+3、make && make install
+	(base) hisilicon@hisilicon-desktop:~/Desktop/nfs_v300/rtmp3559/rtmp_install$ tree -d
+	.
+	├── bin
+	├── include
+	│   └── openssl
+	├── lib
+	│   ├── engines
+	│   └── pkgconfig
+	├── share
+	│   └── man
+	│       └── man3
+	└── ssl
+	    ├── certs
+	    ├── man
+	    │   ├── man1
+	    │   ├── man3
+	    │   ├── man5
+	    │   └── man7
+	    ├── misc
+	    └── private
+4、(base) hisilicon@hisilicon-desktop:~/Desktop/nfs_v300/rtmp3559/rtmp_src/librtmp$ export C_INCLUDE_PATH='/home/hisilicon/Desktop/nfs_v300/rtmp3559/rtmp_install/include'
+5、(base) hisilicon@hisilicon-desktop:~/Desktop/nfs_v300/rtmp3559/rtmp_src/librtmp$ export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:/home/hisilicon/Desktop/nfs_v300/rtmp3559/rtmp_install/include
+6、sudo apt-get install libssl-dev
+
+
+
+#librtmp
+
+1、抽出/home/hisilicon/Desktop/nfs_v300/rtmp3559/rtmp_src/rtmpdump-master中的librtmp
+   解压，只需要其中的librtmp
+2、在librtmp中修改Makefile
+	prefix=/home/hisilicon/Desktop/nfs_v300/rtmp3559/rtmp_install
+	CC=aarch64-himix100-linux-gcc
+	LD=aarch64-himix100-linux-ld
+	AR=aarch64-himix100-linux-ar
+	CRYPTO=/home/hisilicon/Desktop/nfs_v300/rtmp3559/rtmp_install/bin
+3、 make && make install
+outcome::
+mkdir -p isilicon/Desktop/nfs_v300/rtmp3559/rtmp_install/include/librtmp isilicon/Desktop/nfs_v300/rtmp3559/rtmp_install/lib/pkgconfig isilicon/Desktop/nfs_v300/rtmp3559/rtmp_install/man/man3 isilicon/Desktop/nfs_v300/rtmp3559/rtmp_install/lib
+cp amf.h http.h log.h rtmp.h isilicon/Desktop/nfs_v300/rtmp3559/rtmp_install/include/librtmp
+cp librtmp.a isilicon/Desktop/nfs_v300/rtmp3559/rtmp_install/lib
+cp librtmp.pc isilicon/Desktop/nfs_v300/rtmp3559/rtmp_install/lib/pkgconfig
+cp librtmp.3 isilicon/Desktop/nfs_v300/rtmp3559/rtmp_install/man/man3
+cp librtmp.so.1 isilicon/Desktop/nfs_v300/rtmp3559/rtmp_install/lib
+cd isilicon/Desktop/nfs_v300/rtmp3559/rtmp_install/lib; ln -sf librtmp.so.1 librtmp.so
+
+
+
+#test-----------------------------------------------------------------------------------------------
+#推流测试
+ffmpeg -re -i video.flv -vcodec libx264 -acodec aac -f flv rtmp://192.168.1.138:1935/live/stream 
+
+aarch64-himix100-linux-g++ rtmp_rec.cpp -o rtmp_send_demo -L/home/hisilicon/Desktop/nfs_v300/rtmp3559/rtmp_install/lib -lrtmp -lcrypto -lssl -lz -I/home/hisilicon/Desktop/nfs_v300/rtmp3559/rtmp_install/include -I/home/hisilicon/Desktop/nfs_v300/rtmp3559/rtmp_src/librtmp/
+
+aarch64-himix100-linux-g++ rtmp_send_test.cpp -o rtmp_send2_demo -L/home/hisilicon/Desktop/nfs_v300/rtmp3559/rtmp_install/lib -lrtmp -lcrypto -lssl -lz -I/home/hisilicon/Desktop/nfs_v300/rtmp3559/rtmp_install/include -I/home/hisilicon/Desktop/nfs_v300/rtmp3559/rtmp_src/librtmp/
+
+
+
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------------------------
+
+
+#openssl
+
+1、$ CC=aarch64-himix100-linux-gcc bash ./config no-asm shared --prefix='/home/hisilicon/Desktop/nfs_v300/librtmp'
+2、gedit Makefile 去掉-m64
+3、make
+4、make install
+
+#librtmp
+
+1、解压，只需要其中的librtmp
+2、在librtmp中修改Makefile
+3、
+prefix=/usr/local/librtmp-install
+CC=aarch64-himix100-linux-gcc
+LD=aarch64-himix100-linux-ld
+AR=aarch64-himix100-linux-ar
+CRYPTO=/home/hisilicon/Desktop/nfs_v300/librtmp/bin
+
+
+
+
+##########################################rtmp 3516##########################################
+
+#zlib
+(1) CC=arm-himix200-linux-gcc bash ./configure --prefix='/home/hisilicon/Desktop/nfs_v300/rtmp3516DV300/rtmp_install' //modifing compiler and  installing directory(prefix)
+(2) make && make install  //checking the compiler is arm-himix200-linux-gcc or not,file libz.so.1.2.11
+
+#openssl
+(1)  CC=arm-himix200-linux-gcc bash ./config no-asm shared --prefix='/home/hisilicon/Desktop/nfs_v300/rtmp3516DV300/rtmp_install'
+(2)  gedit Makefile and remove all "-m64", two position
+(3)  make && make install
+(4)  sudo apt-get install libssl-dev
+(5)  export C_INCLUDE_PATH='/home/hisilicon/Desktop/nfs_v300/rtmp3516DV300/rtmp_install/include' 
+(6)  export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:'/home/hisilicon/Desktop/nfs_v300/rtmp3516DV300/rtmp_install/include'
+
+#librtmp
+(1)  cp -r  rtmpdump-master/librtmp/ .
+(2)  modifing Makefile only
+	prefix=/home/hisilicon/Desktop/nfs_v300/rtmp3516DV300/rtmp_install
+	CC=arm-himix200-linux-gcc
+	LD=arm-himix200-linux-ld
+	AR=arm-himix200-linux-ar
+	CRYPTO=/home/hisilicon/Desktop/nfs_v300/rtmp3516DV300/rtmp_install/bin
+
+
+#test
+arm-himix200-linux-g++ rtmp_send_test.cpp -o rtmp_send_3516 -L/home/hisilicon/Desktop/nfs_v300/rtmp3516DV300/rtmp_install/lib -lrtmp -lcrypto -lssl -lz -I/home/hisilicon/Desktop/nfs_v300/rtmp3559/rtmp_install/include -I/home/hisilicon/Desktop/nfs_v300/rtmp3559/rtmp_src/librtmp/
+
+error:
+/home/hisilicon/Desktop/nfs_v300/rtmp3559/rtmp_install/lib/librtmp.so: file not recognized: File format not recognized
+compiler can't recognized this dynamic library
+
+
+
+
