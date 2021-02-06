@@ -1,1 +1,1 @@
-# hisillicon3516AV100
+# hisillicon3516
